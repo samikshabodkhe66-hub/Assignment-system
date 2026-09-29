@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Submission System</title>
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #f4f6f9;
+      color: #333;
+      padding: 20px;
+    }
+    header {
+      background-color: #003366;
+      color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .nav-btn {
+      background: #ffffff;
+      color: #003366;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    .nav-btn:hover {
+      background: #e2e8f0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* Forms & Inputs */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="password"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    button.btn-primary {
+      background-color: #003366;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button.btn-primary:hover {
+      background-color: #002244;
+    }
+
+    /* Status Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .bg-pending { background-color: #f39c12; }
+    .bg-accepted { background-color: #27ae60; }
+    .bg-changes { background-color: #e74c3c; }
+
+    /* Dashboard Cards & History Items */
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #fafafa;
+    }
+    .history-item {
+      border-left: 4px solid #003366;
+      padding-left: 12px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header>
+    <h2>Assignment Portal</h2>
+    <div>
+      <button class="nav-btn" onclick="showPage('auth-page')">Register / Login</button>
+      <button class="nav-btn" onclick="showPage('admin-page')">Admin Dashboard</button>
+      <button class="nav-btn" onclick="showPage('student-page')">Student Dashboard</button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- 1. REGISTER & LOGIN PAGE -->
+    <div id="auth-page">
+      <h2>Register / Login Page</h2>
+      <p style="margin-bottom: 15px; color: #666;">Separate forms or role selection for Admin and Student.</p>
+
+      <form onsubmit="event.preventDefault(); showPage(document.getElementById('role').value === 'Admin' ? 'admin-page' : 'student-page');">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Enter username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+        <div class="form-group">
+          <label for="role">Select Role</label>
+          <select id="role">
+            <option value="Student">Student</option>
+            <option value="Admin">Admin / Professor</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Login / Register</button>
+      </form>
+    </div>
+
+    <!-- 2. ADMIN REVIEW DASHBOARD -->
+    <div id="admin-page" class="hidden">
+      <h2>Admin Review Dashboard</h2>
+      <p style="margin-bottom: 15px; color: #666;">View student submissions, enter written feedback, and select status.</p>
+
+      <div class="card">
+        <h3>Student: John Doe (Assignment 1)</h3>
+        <p style="margin: 8px 0;"><strong>Current Status:</strong> <span class="badge bg-changes" id="admin-current-status">Needs Changes</span></p>
+        <p style="margin: 8px 0;"><strong>Latest Submission Content:</strong></p>
+        <div style="background: #fff; padding: 10px; border: 1px solid #ddd; margin-bottom: 10px;">
+          "Here is my updated assignment draft addressing the formatting issue."
+        </div>
+
+        <div class="form-group">
+          <label for="admin-feedback">Written Feedback</label>
+          <textarea id="admin-feedback" placeholder="Enter feedback here...">Please fix the introduction paragraph and re-submit.</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="status-select">Assign Status</label>
+          <select id="status-select">
+            <option value="Needs Changes">Needs Changes</option>
+            <option value="Accepted">Accepted</option>
+          </select>
+        </div>
+
+        <button class="btn-primary" onclick="submitReview()">Save Review & Feedback</button>
+      </div>
+    </div>
+
+    <!-- 3. STUDENT SUBMISSION DASHBOARD -->
+    <div id="student-page" class="hidden">
+      <h2>Student Submission Dashboard</h2>
+      <p style="margin-bottom: 15px; color: #666;">View status and feedback, submit updated versions, and see submission history.</p>
+
+      <!-- Status & Feedback Card -->
+      <div class="card">
+        <h3>Current Submission Status</h3>
+        <p style="margin: 8px 0;"><strong>Status:</strong> <span class="badge bg-changes" id="student-status">Needs Changes</span></p>
+        <p style="margin: 8px 0;"><strong>Professor Feedback:</strong></p>
+        <div id="student-feedback" style="background: #fff; padding: 10px; border: 1px solid #ddd;">
+          Please fix the introduction paragraph and re-submit.
+        </div>
+      </div>
+
+      <!-- Resubmit / Submit Form -->
+      <div class="card">
+        <h3>Submit Updated Version</h3>
+        <div class="form-group">
+          <label for="submission-text">Your Submission Content</label>
+          <textarea id="submission-text" placeholder="Write or paste your submission content here..."></textarea>
+        </div>
+        <button class="btn-primary" onclick="submitWork()">Submit Updated Draft</button>
+      </div>
+
+      <!-- Submission History -->
+      <div class="card">
+        <h3>Previous Submission History</h3>
+        
+        <div class="history-item">
+          <p><strong>Version 2 (Latest)</strong> — <span class="badge bg-changes">Needs Changes</span></p>
+          <p><em>Submitted: Sep 29, 2026</em></p>
+          <p>Content: "Here is my updated assignment draft addressing the formatting issue."</p>
+          <p>Feedback: "Please fix the introduction paragraph and re-submit."</p>
+        </div>
+
+        <div class="history-item">
+          <p><strong>Version 1</strong> — <span class="badge bg-changes">Needs Changes</span></p>
+          <p><em>Submitted: Sep 25, 2026</em></p>
+          <p>Content: "First draft of the assignment."</p>
+          <p>Feedback: "Missing references."</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Navigation routing logic
+    function showPage(pageId) {
+      document.getElementById('auth-page').classList.add('hidden');
+      document.getElementById('admin-page').classList.add('hidden');
+      document.getElementById('student-page').classList.add('hidden');
+
+      document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    // Demo actions for feedback submission
+    function submitReview() {
+      const feedback = document.getElementById('admin-feedback').value;
+      const status = document.getElementById('status-select').value;
+      
+      document.getElementById('student-feedback').innerText = feedback;
+      document.getElementById('student-status').innerText = status;
+      document.getElementById('admin-current-status').innerText = status;
+
+      alert('Review successfully saved!');
+    }
+
+    function submitWork() {
+      const text = document.getElementById('submission-text').value;
+      if (!text.trim()) {
+        alert('Please enter assignment content before submitting.');
+        return;
+      }
+      alert('Updated version submitted to Professor!');
+      document.getElementById('submission-text').value = '';
+    }
+  </script>
+</body>
+</html>
